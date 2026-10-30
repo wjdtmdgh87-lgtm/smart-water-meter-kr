@@ -15,7 +15,24 @@
   <img src="https://img.shields.io/badge/Capacitor-8-119EFF?logo=capacitor&logoColor=white" alt="Capacitor 8">
 </p>
 
-## 김재헌의 기여
+> 팀 MAD의 원본 저장소 [jaeheonki/smart-water-meter-kr](https://github.com/jaeheonki/smart-water-meter-kr)를 옮겨 온 사본입니다. 정승호의 기여를 먼저 정리했고, PM의 기여와 팀원 소개는 그 아래에 있습니다.
+
+## 정승호의 기여
+
+**담당 범위** · 데이터·모델. 라벨링, 2단계 검출 구조 전환, 숫자 검출 모델 학습, 모델 공동 선정, 4방향 회전과 방향 점수 코드.
+
+- 팀이 촬영한 계량기 사진 약 200장에 숫자 표시 영역의 바운딩 박스를 라벨링했습니다.
+- 표시 영역을 OCR로 읽으면 숫자를 틀리게 읽는 것을 확인하고, 숫자를 하나씩 0~9 클래스로 다시 라벨링해 표시부 검출 → 숫자 검출의 2단계 구조로 바꿨습니다. 숫자 검출 YOLOX-s(Model 2)를 학습해 가중치를 PM에게 전달했습니다.
+- PM과 함께 후보 모델을 비교했습니다. AGPL-3.0인 YOLOv8s를 제외하고, CPU 서버에서 ONNX로 실행할 수 있는 YOLOX-s를 골랐습니다.
+- 예시 이미지에서 6과 9가 뒤바뀌는 것을 보고 4방향 회전을 제안했고, 평균 신뢰도·한 줄 정렬도·검출 수를 합친 방향 점수로 한 방향만 채택하는 코드를 작성했습니다.
+
+**코드가 반영된 경위** · 제 코드는 PM에게 전달해 PM 계정으로 커밋됐기 때문에 커밋 기록에는 제 이름이 없습니다. 제 Colab 노트북의 `read_meter_auto`에 있던 회전·방향 점수 로직이 커밋 [`94327b4`](https://github.com/wjdtmdgh87-lgtm/smart-water-meter-kr/commit/94327b484b70131f21721ae3ab8d9c5a825889fa)(2026-06-12)에서 ONNX 추론용 [`_score`](src/model/pipeline.py)로 옮겨졌습니다. 점수식, crop 여백 8px, confidence 0.3, NMS IoU 0.45가 노트북과 같습니다.
+
+| 작성한 코드 | 학습한 모델 | 측정 범위 |
+| --- | --- | --- |
+| [방향 점수 `_score`와 4방향 회전](src/model/pipeline.py) | 숫자 검출 Model 2 (서비스에서는 ONNX로 변환해 [digit_detector.py](src/model/digit_detector.py)에서 실행) | 진행보고서의 표시부 검출 mAP@0.50 1.000·mAP@0.50:0.95 0.729는 작은 내부 검증셋 값이라 실제 성능으로 보지 않습니다. 검침값 전체의 숫자열 일치율과 자릿수 정확도는 아직 재지 않았고, 학습에 쓰지 않은 사진으로 테스트셋을 만들어 측정할 예정입니다. |
+
+## 김재헌(PM)의 기여
 
 **담당 범위** · PM, 검침 모델 비교·선정, ONNX 변환·EC2 배포, 앱 연동과 실기기 검증.
 
@@ -43,7 +60,7 @@
     <td align="center" width="160">
       <a href="https://github.com/wjdtmdgh87-lgtm">
         <img src="https://github.com/wjdtmdgh87-lgtm.png?size=100" width="100" alt="정승호"><br>
-        <sub><b>정승호</b></sub>
+        <sub><b>정승호 (데이터·모델)</b></sub>
       </a>
     </td>
     <td align="center" width="160">
